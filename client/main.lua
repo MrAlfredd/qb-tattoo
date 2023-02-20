@@ -605,8 +605,8 @@ CreateThread(function()
                 minZ = v.z - 1,
                 maxZ = v.z + 1,
             })
-            local bankCombo = ComboZone:Create(tattooPoly, { name = "tattooPoly" })
-            bankCombo:onPlayerInOut(function(isPointInside)
+            local tattooCombo = ComboZone:Create(tattooPoly, { name = "tattooPoly" })
+            tattooCombo:onPlayerInOut(function(isPointInside)
                 if isPointInside then
                     exports['qb-core']:DrawText("Press [E] to open tattoo menu", 'left')
                     TattooControl()
