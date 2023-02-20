@@ -14,8 +14,6 @@ local lastSelectedTattoo = {
     name = "",
 }
 
-
-
 local function DrawTattoo(collection, name)
     ClearPedDecorations(PlayerPedId())
     for k, v in pairs(currentTattoos) do
@@ -64,7 +62,6 @@ local function RemoveTattoo(name, label)
     setTattoos()
 end
 
-
 local nakedPed = {
     male = {
         outfitData = {
@@ -90,7 +87,6 @@ local nakedPed = {
 }
 
 
-
 function GetNaked()
     local playerData = QBCore.Functions.GetPlayerData()
     QBCore.Functions.TriggerCallback('qb-multicharacter:server:getSkin', function(model, data)
@@ -107,7 +103,6 @@ end
 -- Call this function when exiting to reset clothes.
 local function resetClothes()
     TriggerEvent('qb-clothing:client:loadPlayerClothing', defaultOutfit)
-
     setTattoos()
 end
 
@@ -137,24 +132,6 @@ function CloseMenu()
 end
 
 
-RegisterCommand('loadt', function(source)
-    QBCore.Functions.TriggerCallback('SmallTattoos:GetPlayerTattoos', function(tattooList)
-        if tattooList then
-            ClearPedDecorations(PlayerPedId())
-            for k, v in pairs(tattooList) do
-                if v.Count ~= nil then
-                    for i = 1, v.Count do
-                        AddPedDecorationFromHashes(PlayerPedId(), v.collection, v.nameHash)
-                    end
-                else
-                    AddPedDecorationFromHashes(PlayerPedId(), v.collection, v.nameHash)
-                end
-            end
-            currentTattoos = tattooList
-        end
-    end)
-end)
-
 local function RemoveMenu()
     local list = {}
     list[#list + 1] = {
@@ -172,7 +149,6 @@ local function RemoveMenu()
             end,
         },
     }
-
     for k, v in pairs(currentTattoos) do
         for _, tattoo in pairs(Config.AllTattooList) do
             if v.nameHash == tattoo.HashNameMale or v.nameHash == tattoo.HashNameFemale then
@@ -189,12 +165,10 @@ local function RemoveMenu()
             end
         end
     end
-
     exports['qb-menu']:openMenu(list)
 end
 
 function TattooMenu()
-    
     GetNaked()
     isMenuOpen = true
     FreezeEntityPosition(PlayerPedId(), true)
@@ -204,7 +178,6 @@ function TattooMenu()
         RenderScriptCams(false, false, 0, 1, 0)
         DestroyCam(cam, false)
     end
-
     local list = {}
     list[#list + 1] = {
         isMenuHeader = true,
@@ -221,7 +194,6 @@ function TattooMenu()
             end,
         },
     }
-
     list[#list + 1] = {
         header = "Remove tattoos",
         txt = "You have " .. #currentTattoos .. " tattoos you can remove.",
@@ -259,13 +231,8 @@ function TattooMenu()
             },
         }
     end
-
     exports['qb-menu']:openMenu(list)
 end
-
-RegisterCommand('tattoo', function(source)
-    TattooMenu()
-end)
 
 local function setupCamera(tattooZone)
     if not DoesCamExist(cam) then
@@ -282,7 +249,6 @@ end
 
 function OpenCategory(tattooZone)
     setupCamera(tattooZone)
-  
     local price = math.ceil(lastSelectedTattoo.price / Config.Discount)
     local list = {}
     list[#list + 1] = {
@@ -305,10 +271,7 @@ function OpenCategory(tattooZone)
         txt = "Current: " .. back,
         params = {
             isAction = true,
-
             event = function()
-                
-                --back = (back % tattooZone[3]) + 1
                 if back == #tattooZone[3] then
                     back = 1
                 else
@@ -329,8 +292,6 @@ function OpenCategory(tattooZone)
                 else
                     opacity = opacity + 1
                 end
-
-                
                 OpenCategory(tattooZone)
                 DrawTattoo(lastSelectedTattoo.collection, lastSelectedTattoo.hash)
             end,
@@ -354,7 +315,6 @@ function OpenCategory(tattooZone)
             end,
         },
     }
-
     list[#list + 1] = {
         header = "Buy",
         txt = lastSelectedTattoo.hash == "" and "Select a tattoo first" or "Price: " .. price,
@@ -488,14 +448,35 @@ function OpenCategory(tattooZone)
             }
         end
     end
-    -- setTattoos()
     exports['qb-menu']:openMenu(list)
 end
 
 
+RegisterCommand('loadt', function(source)
+    QBCore.Functions.TriggerCallback('SmallTattoos:GetPlayerTattoos', function(tattooList)
+        if tattooList then
+            ClearPedDecorations(PlayerPedId())
+            for k, v in pairs(tattooList) do
+                if v.Count ~= nil then
+                    for i = 1, v.Count do
+                        AddPedDecorationFromHashes(PlayerPedId(), v.collection, v.nameHash)
+                    end
+                else
+                    AddPedDecorationFromHashes(PlayerPedId(), v.collection, v.nameHash)
+                end
+            end
+            currentTattoos = tattooList
+        end
+    end)
+end)
+
+RegisterCommand('tattoo', function(source)
+    TattooMenu()
+end)
+
+--- This is needed to prevent players from pressing ESC to close the menu and keep the tattoos.
 AddEventHandler('qb-menu:client:menuClosed', function()
     if isMenuOpen then
-        print("CLOSEEVENT")
         CloseMenu()
     end
 end)
