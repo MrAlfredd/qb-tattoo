@@ -1,4 +1,4 @@
-# qb-tattoos
+# qb-tattoo
 
 
 [WIP]
