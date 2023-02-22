@@ -20,27 +20,48 @@ QBCore.Functions.CreateCallback('SmallTattoos:GetPlayerTattoos', function(source
 	end
 end)
 
-QBCore.Functions.CreateCallback('SmallTattoos:PurchaseTattoo', function(source, cb, tattooList, price, tattoo, tattooName)
-	local src = source
-	local Player = QBCore.Functions.GetPlayer(src)
-	if Player.Functions.GetMoney('cash') >= price then
-		Player.Functions.RemoveMoney('cash', price)
-		tattooList[#tattooList + 1] = tattoo
-		MySQL.update('UPDATE players SET tattoos = ? WHERE citizenid = ?', {
-			json.encode(tattooList),
-			Player.PlayerData.citizenid
-		})
-		TriggerClientEvent('QBCore:Notify', src, 'You bought the '..tattooName..' tattoo for $'..price)
-		cb(true)
-	else
-		TriggerClientEvent('QBCore:Notify', src, 'Not enough money', 'error')
-		cb(false)
-	end
-end)
+QBCore.Functions.CreateCallback('SmallTattoos:PurchaseTattoo',
+	function(source, cb, tattooList, price, tattoo, tattooName)
+		local src = source
+		local Player = QBCore.Functions.GetPlayer(src)
+		if Player.Functions.GetMoney('cash') >= price then
+			Player.Functions.RemoveMoney('cash', price)
+			tattooList[#tattooList + 1] = tattoo
+			MySQL.update('UPDATE players SET tattoos = ? WHERE citizenid = ?', {
+				json.encode(tattooList),
+				Player.PlayerData.citizenid
+			})
+			TriggerClientEvent('QBCore:Notify', src, 'You bought the ' .. tattooName .. ' tattoo for $' .. price)
+			cb(true)
+		else
+			TriggerClientEvent('QBCore:Notify', src, 'Not enough money', 'error')
+			cb(false)
+		end
+	end)
 
 -- Event
 
-RegisterNetEvent('SmallTattoos:RemoveTattoo', function (tattooList)
+if Config.Multicharacter then
+	RegisterServerEvent('QBCore:Server:TriggerCallback', function(event, data, data2)
+		local src = source
+		if event == 'qb-multicharacter:server:getSkin' then
+			if data ~= nil then
+				-- Add error handling to the MySQL query
+				MySQL.query('SELECT tattoos FROM players WHERE citizenid = ?', {
+					data
+				}, function(result, affected)
+					if result[1] and result[1].tattoos then
+						TriggerClientEvent('qb-tattoos:loadTattos', src, json.decode(result[1].tattoos))
+					else
+						print("Error: No tattoos found for citizenid " .. data)
+					end
+				end)
+			end
+		end
+	end)
+end
+
+RegisterNetEvent('SmallTattoos:RemoveTattoo', function(tattooList)
 	local src = source
 	local Player = QBCore.Functions.GetPlayer(src)
 	MySQL.update('UPDATE players SET tattoos = ? WHERE citizenid = ?', {

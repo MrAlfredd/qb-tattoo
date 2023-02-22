@@ -1,15 +1,18 @@
 fx_version 'cerulean'
 game 'gta5'
 
-description 'QB-Tattoos'
+description 'QB-Tattoo'
 
-shared_script 'config.lua'
+shared_script {
+	'shared/**'
+
+}
 
 client_scripts {
 	'@PolyZone/client.lua',
     '@PolyZone/BoxZone.lua',
     '@PolyZone/ComboZone.lua',
-	'client/main.lua'
+	'client/**'
 }
 
 server_scripts {
