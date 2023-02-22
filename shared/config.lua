@@ -11,50 +11,14 @@ Config.TattooObjects = {
 	-1805606583
 }
 
-
 Config.Zones = {
-	[1] = {
-		zone = "ZONE_TORSO",
-	
-		camPos = { vec(0.0, 1.0, 0.2) },
-		lookAt = vec(0.0, 0.0, 0.2),
-	},
-	[2] = {
-		zone = "ZONE_HEAD",
-
-		camPos = { vec(0.0, 1.0, 0.7)},
-		lookAt = vec(0.0, 0.0, 0.5),
-	},
-	[3] = {
-		zone = "ZONE_LEFT_ARM",
-	
-		camPos = { vec(-0.4, 1.0, 0.2)},
-		lookAt = vec(-0.2, 0.0, 0.2),
-	},
-	[4] = {
-		zone = "ZONE_RIGHT_ARM",
-		name = "Right Arm",
-		camPos = { vec(0.4, 1.0, 0.2)},
-		lookAt = vec(0.2, 0.0, 0.2),
-	},
-	[5] = {
-		zone = "ZONE_LEFT_LEG",
-		name = "Left Leg",
-		camPos = { vec(-0.2, 1.0, -0.7)},
-		lookAt = vec(-0.2, 0.0, -0.6),
-	},
-	[6] = {
-		zone = "ZONE_RIGHT_LEG",
-		name = "Right Leg",
-		camPos = { vec(0.2, 1.0, -0.7)},
-		lookAt = vec(0.2, 0.0, -0.6),
-	},
-	[7] = {
-		zone = "ZONE_HAIR",
-		name = "Head",
-		camPos = { vec(0.0, 1.0, 0.7)},
-		lookAt = vec(0.0, 0.0, 0.5),
-	},	
+	[1] = {zone = "ZONE_TORSO",		camPos = { vec(0.0, 1.0, 0.2) },	lookAt = vec(0.0, 0.0, 0.2),	},
+	[2] = {zone = "ZONE_HEAD",		camPos = { vec(0.0, 1.0, 0.7)},		lookAt = vec(0.0, 0.0, 0.5),	},
+	[3] = {zone = "ZONE_LEFT_ARM",	camPos = { vec(-0.4, 1.0, 0.2)},	lookAt = vec(-0.2, 0.0, 0.2),	},
+	[4] = {zone = "ZONE_RIGHT_ARM", camPos = { vec(0.4, 1.0, 0.2)}, 	lookAt = vec(0.2, 0.0, 0.2),	},
+	[5] = {zone = "ZONE_LEFT_LEG", 	camPos = { vec(-0.2, 1.0, -0.7)},	lookAt = vec(-0.2, 0.0, -0.6),	},
+	[6] = {zone = "ZONE_RIGHT_LEG", camPos = { vec(0.2, 1.0, -0.7)}, 	lookAt = vec(0.2, 0.0, -0.6),	},
+	[7] = {zone = "ZONE_HAIR", 		camPos = { vec(0.0, 1.0, 0.7)}, 	lookAt = vec(0.0, 0.0, 0.5),	},	
 	
 }
 Config.Labels = {
@@ -104,36 +68,12 @@ Config.TattooShops = {
 }
 
 Config.TattooZones = {
-	[1] = {
-		position = vector3(1322.6, -1651.9, 51.2),
-		length = 6.2, width = 2.0, heading = 250,
-		minZ = 27.17, maxZ = 31.17
-	},
-	[2] = {
-		position = vector3(-1153.6, -1425.6, 4.9),
-		length = 6.6, width = 2.0, heading = 250,
-		minZ = 51.97, maxZ = 55.97
-	},
-	[3] = {
-		position = vector3(322.1, 180.4, 103.5),
-		length = 6.4, width = 2.0, heading = 71,
-		minZ = 46.84, maxZ = 50.84
-	},
-	[4] = {
-		position = vector3(-3170.0, 1075.0, 20.8),
-		length = 6.4, width = 2.0, heading = 297,
-		minZ = 35.58, maxZ = 39.58
-	},
-	[5] = {
-		position = vector3(1864.6, 3747.7, 33.0),
-		length = 6.6, width = 2.0, heading = 358,
-		minZ = 13.7, maxZ = 17.7
-	},
-	[6] = {
-		position = vector3(-293.7, 6200.0, 31.4),
-		length = 6.6, width = 2.0, heading = 90,
-		minZ = 35.89, maxZ = 39.89
-	}
+	[1] = {position = vector3(1322.6, -1651.9, 51.2),  	length = 6.2, width = 2.0,  heading = 250, 	minZ = 27.17, maxZ = 31.17 },
+	[2] = {position = vector3(-1153.6, -1425.6, 4.9),	length = 6.6, width = 2.0,  heading = 250,	minZ = 51.97, maxZ = 55.97 },
+	[3] = {position = vector3(322.1, 180.4, 103.5),		length = 6.4, width = 2.0, 	heading = 71,	minZ = 46.84, maxZ = 50.84},
+	[4] = {position = vector3(-3170.0, 1075.0, 20.8),	length = 6.4, width = 2.0, 	heading = 297,	minZ = 35.58, maxZ = 39.58},
+	[5] = {position = vector3(1864.6, 3747.7, 33.0),	length = 6.6, width = 2.0, 	heading = 358,	minZ = 13.7,  maxZ = 17.7},
+	[6] = {position = vector3(-293.7, 6200.0, 31.4),	length = 6.6, width = 2.0, 	heading = 90,	minZ = 35.89, maxZ = 39.89}
 
 }
 
@@ -143,8 +83,6 @@ if not IsDuplicityVersion() then
 		Config.interiorIds[#Config.interiorIds + 1] = GetInteriorAtCoords(v)
 	end
 end
-
-
 
 function debugPrint(text) -- function to handle debug prints
 	if Config.Debug then
