@@ -199,6 +199,16 @@ local function CloseMenu()
     isMenuOpen = false
 end
 
+local function isTattooSelectedOrOwned(tattoo)
+    if lastSelectedTattoo.hash == tattoo.hashFemale or lastSelectedTattoo.hash == tattoo.hashMale then
+        return true, "Last selected"
+    elseif IsTattooOwned(tattoo.hashMale) or IsTattooOwned(tattoo.hashFemale) then
+        return true, "Already owned"
+    else
+        return false, ""
+    end
+end
+
 local function ShowCurrentTattoos()
     local list = {}
     list[#list + 1] = {
@@ -390,11 +400,11 @@ function OpenCollection(tattoos, zones, collection)
         local isDisabled = false
         local tattooPrice = tattoo.price or 10000
         local price = math.ceil(tattooPrice / Config.Discount)
-        if lastSelectedTattoo.name == tattoo.name then
-            header = tattoo.label .. " ( Current )"
-            isDisabled = true
-        elseif IsTattooOwned(tattoo.hashMale) or IsTattooOwned(tattoo.hashFemale) then
-            header = tattoo.label .. " ( Already has this )"
+        
+        -- Check if tattoo is already selected or owned
+        local isTattooSelected, status = isTattooSelectedOrOwned(tattoo)
+        if isTattooSelected then
+            header = header .. " (" .. status .. ")"
             isDisabled = true
         else
             local hash = GetEntityModel(PlayerPedId()) == `mp_f_freemode_01` and tattoo.hashFemale or tattoo.hashMale
@@ -402,6 +412,7 @@ function OpenCollection(tattoos, zones, collection)
                 tattooHash = hash
             end
         end
+        -- Add menu item
         collectionList[#collectionList + 1] = {
             header = header,
             txt = "Price : $" .. price,
@@ -499,7 +510,6 @@ function OpenZone(zones)
 end
 
 function TattooMenu()
-
     local locationName = QBCore.Functions.GetZoneAtCoords(GetEntityCoords(PlayerPedId()))
     local list = {}
     list[#list + 1] = {
@@ -663,7 +673,7 @@ CreateThread(function()
                         type = "client",
                         event = "qb-tattoo:openMenu",
                         icon = "fa-solid fa-paintbrush",
-                        label = "Tattoo shop",
+                        label = "Tattoo Shop",
                     }
                 },
                 distance = 1.5
@@ -676,7 +686,7 @@ CreateThread(function()
                     type = "client",
                     event = "qb-tattoo:openMenu",
                     icon = "fa-solid fa-paintbrush",
-                    label = "Tattoo shop",
+                    label = "Tattoo Shop",
 
                 },
             },
@@ -695,7 +705,7 @@ CreateThread(function()
             local tattooCombo = ComboZone:Create(tattooPoly, { name = "tattooPoly" })
             tattooCombo:onPlayerInOut(function(isPointInside)
                 if isPointInside then
-                    exports['qb-core']:DrawText("Press [E] to open tattoo menu", 'left')
+                    exports['qb-core']:DrawText("Press [E] to open Tattoo Shop", 'left')
                     TattooControl()
                 else
                     TattooControlPress = false
