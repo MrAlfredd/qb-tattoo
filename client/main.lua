@@ -112,7 +112,7 @@ local function GetNaked()
     end, playerData.citizenid)
 end
 
-local function resetClothes()
+local function ResetClothes()
     TriggerEvent('qb-clothing:client:loadPlayerClothing', defaultOutfit)
     SetTattoos()
 end
@@ -126,7 +126,6 @@ local function SetupCamera(zones)
             RenderScriptCams(false, false, 0, 1, 0)
             DestroyCam(cam, false)
         end
-        currentCamIndex = 1
         return
     end
     -- If zone is provided then setup camera
@@ -144,15 +143,13 @@ local function SetupCamera(zones)
     SetCamCoord(cam, playerPos)
     PointCamAtCoord(cam, GetOffsetFromEntityInWorldCoords(PlayerPedId(), lookAt))
     -- Adjust camera position
-    local currentHeading = GetEntityHeading(cam) + 180
+    local currentHeading = GetEntityHeading(PlayerPedId()) + 90
     local currentOffset = QBCore.Shared.Round(camPos.y, 2)
     local cx, cy = GetPositionByRelativeHeading(PlayerPedId(), currentHeading, currentOffset)
     SetCamCoord(cam, cx, cy, playerPos.z)
 
-    currentCamIndex = 1
     return playerPos, currentHeading, currentOffset
 end
-
 
 local function ChangeCameraZoom(zones, currentCamPos, currentHeading, currentOffset)
     -- Min and Max "zoom" 
@@ -196,14 +193,9 @@ local function CloseMenu()
     opacity = 1
     lastSelectedTattoo = { hash = "", collection = "", price = 0, name = "" }
     FreezeEntityPosition(PlayerPedId(), false)
-    if DoesCamExist(cam) then
-        DetachCam(cam)
-        SetCamActive(cam, false)
-        RenderScriptCams(false, false, 0, 1, 0)
-        DestroyCam(cam, false)
-    end
     TriggerEvent("qb-menu:closeMenu")
-    resetClothes()
+    SetupCamera()
+    ResetClothes()
     isMenuOpen = false
 end
 
@@ -290,12 +282,19 @@ function OpenCollection(tattoos, zones, collection)
     local collectionList = {}
     collectionList[#collectionList + 1] = {
         isMenuHeader = true,
-        header = "Collection: " .. Config.Labels.Collections[string.lower(collection)] .. " Zone: " .. Config.Labels.Zones[zones.zone],
+        header = "Tattoo list",
         txt = "",
+        disabled = true,
+    }
+    collectionList[#collectionList + 1] = {
+        isMenuHeader = false,
+        header = "",
+        txt = "Zone: " .. Config.Labels.Zones[zones.zone].."<br>Collection: " .. Config.Labels.Collections[string.lower(collection)],
+        disabled = true,
     }
     collectionList[#collectionList + 1] = {
         header = "< Go Back",
-        txt = "Collection selection",
+        txt = "Collections",
         params = {
             isAction = true,
             event = function()
@@ -378,6 +377,12 @@ function OpenCollection(tattoos, zones, collection)
             end,
         },
     }
+    collectionList[#collectionList + 1] = {
+        isMenuHeader = true,
+        header = "",
+        txt = "",
+        disabled = true,
+    }
     -- Loop through the tattoos in the collection
     for i, tattoo in ipairs(tattoos) do
         local header = tattoo.label
@@ -423,12 +428,19 @@ function OpenZone(zones)
     local zoneList = {}
     zoneList[#zoneList + 1] = {
         isMenuHeader = true,
-        header = "Zone: " .. Config.Labels.Zones[zones.zone] .. "",
+        header = "Collection list",
         txt = "",
+        disabled = true,
+    }
+    zoneList[#zoneList + 1] = {
+        isMenuHeader = false,
+        header = "",
+        txt = "Zone: " .. Config.Labels.Zones[zones.zone] .. "",
+        disabled = true,
     }
     zoneList[#zoneList + 1] = {
         header = "< Go Back",
-        txt = "Zone selection",
+        txt = "Zones",
         params = {
             isAction = true,
             event = function()
@@ -437,26 +449,10 @@ function OpenZone(zones)
         },
     }
     zoneList[#zoneList + 1] = {
-        header = "Zoom",
-        txt = "Current zoom: " .. currentOffset .. ' Hold LALT to decrease.',
-        params = {
-            isAction = true,
-            event = function()
-                currentCamPos, currentHeading, currentOffset = ChangeCameraZoom(zones, currentCamPos, currentHeading, currentOffset)
-                OpenZone(zones)
-            end,
-        },
-    }
-    zoneList[#zoneList + 1] = {
-        header = "Change camera",
-        txt = "Current rotation: " .. currentHeading .. ' Hold LALT to decrease.',
-        params = {
-            isAction = true,
-            event = function()
-                currentCamPos, currentHeading, currentOffset = ChangeCameraPosition(zones, currentCamPos, currentHeading, currentOffset)
-                OpenZone(zones)
-            end,
-        },
+        isMenuHeader = true,
+        header = "",
+        txt = "",
+        disabled = true,
     }
     -- Sort the categories alphabetically
     local sortedCollections = {}
@@ -506,7 +502,7 @@ function TattooMenu()
     local list = {}
     list[#list + 1] = {
         isMenuHeader = true,
-        header = "Tattoos",
+        header = "Tattoo Shop",
         txt = "",
     }
     list[#list + 1] = {
@@ -531,7 +527,12 @@ function TattooMenu()
             end,
         },
     }
-
+    list[#list + 1] = {
+        isMenuHeader = true,
+        header = "",
+        txt = "",
+        disabled = true,
+    }
     for i, zones in ipairs(Config.Zones) do
         zones.id = i
         list[#list + 1] = {
@@ -609,7 +610,6 @@ AddEventHandler('QBCore:Client:OnPlayerLoaded', function()
     end)
 end)
 
-
 CreateThread(function()
     while true do
         Wait(300000)
@@ -646,9 +646,6 @@ local function TattooControl()
         end
     end)
 end
-
-
-
 
 CreateThread(function()
     if Config.UseTarget then
