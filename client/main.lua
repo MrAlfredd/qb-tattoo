@@ -2,14 +2,12 @@ local QBCore = exports['qb-core']:GetCoreObject()
 
 local currentTattoos = {}
 local cam = nil
-local back = 1
 local opacity = 1
 local defaultOutfit = {}
 local isMenuOpen = false
 local currentCamIndex = 1
 local currentCamPos, currentHeading, currentOffset = 0, 0, 0
 local lastSelectedTattoo = { hash = "", collection = "", price = 0, name = "" }
-
 local nakedPed = {
     male = {
         outfitData = {
@@ -33,7 +31,6 @@ local nakedPed = {
         }
     }
 }
-
 
 local function DrawTattoo(collection, name)
     ClearPedDecorations(PlayerPedId())
@@ -93,7 +90,6 @@ local function GetPositionByRelativeHeading(ped, head, dist)
     return finPosx, finPosy
 end
 
-
 local function IsTattooOwned(name)
     for i, tattoo in ipairs(currentTattoos) do
         if tattoo.nameHash == name then
@@ -116,17 +112,12 @@ local function GetNaked()
     end, playerData.citizenid)
 end
 
--- Call this function when exiting to reset clothes.
 local function resetClothes()
     TriggerEvent('qb-clothing:client:loadPlayerClothing', defaultOutfit)
     SetTattoos()
 end
 
-
-
-
 local function SetupCamera(zones)
-
     if not zones then
         -- Detach camera if no zones provided
         if DoesCamExist(cam) then
@@ -172,8 +163,6 @@ local function ChangeCameraZoom(zones, currentCamPos, currentHeading, currentOff
     SetCamCoord(cam, cx, cy, currentCamPos.z)
     return GetCamCoord(cam), currentHeading, currentOffset
 end
-
-
 
 local function ChangeCameraPosition(zones, currentCamPos, currentHeading, currentOffset)
     local zoneID = zones.id
@@ -258,7 +247,6 @@ local function ShowCurrentTattoos()
                 break
             end
         end
-
         list[#list + 1] = {
             header = tattooName,
             txt = "Zone: " .. Config.Labels.Zones[tattooZone] .. ", Value: " .. tattooValue .. ", Collection: " .. Config.Labels.Collections[string.lower(tattoo.collection)],
@@ -295,7 +283,6 @@ local function ShowCurrentTattoos()
             },
         }
     end
-
     exports['qb-menu']:openMenu(list)
 end
 
@@ -394,54 +381,40 @@ function OpenCollection(tattoos, zones, collection)
     -- Loop through the tattoos in the collection
     for i, tattoo in ipairs(tattoos) do
         local header = tattoo.label
+        local tattooHash
         local isDisabled = false
         local tattooPrice = tattoo.price or 10000
         local price = math.ceil(tattooPrice / Config.Discount)
-        if lastSelectedTattoo.name == tattoo.name or lastSelectedTattoo.name == tattoo.name then
+        if lastSelectedTattoo.name == tattoo.name then
             header = tattoo.label .. " ( Current )"
             isDisabled = true
         elseif IsTattooOwned(tattoo.hashMale) or IsTattooOwned(tattoo.hashFemale) then
             header = tattoo.label .. " ( Already has this )"
             isDisabled = true
+        else
+            local hash = GetEntityModel(PlayerPedId()) == `mp_f_freemode_01` and tattoo.hashFemale or tattoo.hashMale
+            if hash ~= '' then
+                tattooHash = hash
+            end
         end
-        if GetEntityModel(PlayerPedId()) == `mp_m_freemode_01` and tattoo.hashMale ~= '' then
-            collectionList[#collectionList + 1] = {
-                header = header,
-                txt = "Price : $" .. price .. " ",
-                disabled = isDisabled,
-                params = {
-                    isAction = true,
-                    event = function()
-                        lastSelectedTattoo = {
-                            name = tattoo.name,
-                            hash = tattoo.hashMale,
-                            collection = tattoo.collection,
-                            price = price
-                        }
-                        DrawTattoo(tattoo.collection, tattoo.hashMale)
-                        OpenCollection(tattoos, zones, collection)
-                    end,
-                },
-            }
-        elseif GetEntityModel(PlayerPedId()) == `mp_f_freemode_01` and tattoo.hashFemale ~= '' then
-            collectionList[#collectionList + 1] = {
-                header = header,
-                params = {
-                    isAction = true,
-                    txt = "Price : $" .. price,
-                    event = function()
-                        lastSelectedTattoo = {
-                            name = tattoo.name,
-                            hash = tattoo.hashFemale,
-                            collection = tattoo.collection,
-                            price = price
-                        }
-                        DrawTattoo(tattoo.collection, tattoo.hashFemale)
-                        OpenCollection(tattoos, zones, collection)
-                    end,
-                },
-            }
-        end
+        collectionList[#collectionList + 1] = {
+            header = header,
+            txt = "Price : $" .. price,
+            disabled = isDisabled,
+            params = {
+                isAction = true,
+                event = function()
+                    lastSelectedTattoo = {
+                        name = tattoo.name,
+                        hash = tattooHash,
+                        collection = tattoo.collection,
+                        price = price
+                    }
+                    DrawTattoo(tattoo.collection, tattooHash)
+                    OpenCollection(tattoos, zones, collection)
+                end,
+            },
+        }
     end
     exports['qb-menu']:openMenu(collectionList)
 end
@@ -576,7 +549,7 @@ function TattooMenu()
     SetupCamera()
     GetNaked()
     isMenuOpen = true
-    FreezeEntityPosition(PlayerPedId(), false)
+    FreezeEntityPosition(PlayerPedId(), true)
     exports['qb-menu']:openMenu(list)
 end
 
@@ -592,6 +565,7 @@ AddEventHandler('qb-menu:client:menuClosed', function()
     end
 end)
 
+-- Exprimental stuff that loads tattoos when selecting characters
 if Config.Multicharacter then
     local loadedTattoos = {}
     RegisterNetEvent('qb-tattoos:loadTattos', function(tattoos)

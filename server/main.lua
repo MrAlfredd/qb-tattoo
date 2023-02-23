@@ -39,17 +39,24 @@ QBCore.Functions.CreateCallback('SmallTattoos:PurchaseTattoo',
 		end
 	end)
 
--- Event
 
+RegisterNetEvent('SmallTattoos:RemoveTattoo', function(tattooList)
+	local src = source
+	local Player = QBCore.Functions.GetPlayer(src)
+	MySQL.update('UPDATE players SET tattoos = ? WHERE citizenid = ?', {
+		json.encode(tattooList),
+		Player.PlayerData.citizenid
+	})
+end)
+-- Exprimental stuff, not sure if this is a good thing?
 if Config.Multicharacter then
-	RegisterServerEvent('QBCore:Server:TriggerCallback', function(event, data, data2)
+	RegisterServerEvent('QBCore:Server:TriggerCallback', function(event, data)
 		local src = source
 		if event == 'qb-multicharacter:server:getSkin' then
 			if data ~= nil then
-				-- Add error handling to the MySQL query
 				MySQL.query('SELECT tattoos FROM players WHERE citizenid = ?', {
 					data
-				}, function(result, affected)
+				}, function(result)
 					if result[1] and result[1].tattoos then
 						TriggerClientEvent('qb-tattoos:loadTattos', src, json.decode(result[1].tattoos))
 					else
@@ -60,12 +67,3 @@ if Config.Multicharacter then
 		end
 	end)
 end
-
-RegisterNetEvent('SmallTattoos:RemoveTattoo', function(tattooList)
-	local src = source
-	local Player = QBCore.Functions.GetPlayer(src)
-	MySQL.update('UPDATE players SET tattoos = ? WHERE citizenid = ?', {
-		json.encode(tattooList),
-		Player.PlayerData.citizenid
-	})
-end)
