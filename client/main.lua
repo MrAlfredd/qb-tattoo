@@ -499,11 +499,13 @@ function OpenZone(zones)
 end
 
 function TattooMenu()
+
+    local locationName = QBCore.Functions.GetZoneAtCoords(GetEntityCoords(PlayerPedId()))
     local list = {}
     list[#list + 1] = {
         isMenuHeader = true,
-        header = "Tattoo Shop",
-        txt = "",
+        header =  " Tattoo Shop",
+        txt = locationName.."",
     }
     list[#list + 1] = {
         header = "< Close",
