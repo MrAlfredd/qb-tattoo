@@ -152,10 +152,12 @@ local function SetupCamera(zones)
 end
 
 local function ChangeCameraZoom(zones, currentCamPos, currentHeading, currentOffset)
-    -- Min and Max "zoom" 
+    -- Min and Max "zoom"
     local maxOffset = 2.5
     local minOffset = 0.1
-    local currentOffset = math.max(minOffset, math.min(maxOffset, QBCore.Shared.Round(IsDisabledControlPressed(0, 19) and (currentOffset + 0.1) or (currentOffset - 0.1), 2)))
+    local currentOffset = math.max(minOffset,
+        math.min(maxOffset,
+            QBCore.Shared.Round(IsDisabledControlPressed(0, 19) and (currentOffset + 0.1) or (currentOffset - 0.1), 2)))
     local cx, cy = GetPositionByRelativeHeading(PlayerPedId(), currentHeading, currentOffset)
     SetCamCoord(cam, cx, cy, currentCamPos.z)
     return GetCamCoord(cam), currentHeading, currentOffset
@@ -167,7 +169,7 @@ local function ChangeCameraPosition(zones, currentCamPos, currentHeading, curren
     local ped = PlayerPedId()
     local heading = 0
 
-    -- Exprimental might not work as it suppose to. 
+    -- Exprimental might not work as it suppose to.
     if IsDisabledControlPressed(0, 36) then
         if IsDisabledControlPressed(0, 19) then
             heading = currentHeading - 90
@@ -251,7 +253,9 @@ local function ShowCurrentTattoos()
         end
         list[#list + 1] = {
             header = tattooName,
-            txt = "Zone: " .. Config.Labels.Zones[tattooZone] .. ", Value: " .. tattooValue .. ", Collection: " .. Config.Labels.Collections[string.lower(tattoo.collection)],
+            txt = "Zone: " ..
+            Config.Labels.Zones[tattooZone] ..
+            ", Value: " .. tattooValue .. ", Collection: " .. Config.Labels.Collections[string.lower(tattoo.collection)],
             params = {
                 isAction = true,
                 event = function()
@@ -299,7 +303,8 @@ function OpenCollection(tattoos, zones, collection)
     collectionList[#collectionList + 1] = {
         isMenuHeader = false,
         header = "",
-        txt = "Zone: " .. Config.Labels.Zones[zones.zone].."<br>Collection: " .. Config.Labels.Collections[string.lower(collection)],
+        txt = "Zone: " ..
+        Config.Labels.Zones[zones.zone] .. "<br>Collection: " .. Config.Labels.Collections[string.lower(collection)],
         disabled = true,
     }
     collectionList[#collectionList + 1] = {
@@ -321,7 +326,7 @@ function OpenCollection(tattoos, zones, collection)
             event = function()
                 currentCamPos, currentHeading, currentOffset = ChangeCameraZoom(zones, currentCamPos, currentHeading,
                     currentOffset)
-                OpenZone(zones)
+                OpenCollection(tattoos, zones, collection)
             end,
         },
     }
@@ -331,7 +336,8 @@ function OpenCollection(tattoos, zones, collection)
         params = {
             isAction = true,
             event = function()
-                currentCamPos, currentHeading, currentOffset = ChangeCameraPosition(zones, currentCamPos, currentHeading, currentOffset)
+                currentCamPos, currentHeading, currentOffset = ChangeCameraPosition(zones, currentCamPos, currentHeading,
+                    currentOffset)
                 OpenCollection(tattoos, zones, collection)
             end,
         },
@@ -368,7 +374,8 @@ function OpenCollection(tattoos, zones, collection)
                         params = {
                             isAction = true,
                             event = function()
-                                BuyTattoo(lastSelectedTattoo.collection, lastSelectedTattoo.hash, lastSelectedTattoo.name, lastSelectedTattoo.price)
+                                BuyTattoo(lastSelectedTattoo.collection, lastSelectedTattoo.hash, lastSelectedTattoo
+                                    .name, lastSelectedTattoo.price)
                                 TattooMenu()
                             end,
                         },
@@ -400,7 +407,7 @@ function OpenCollection(tattoos, zones, collection)
         local isDisabled = false
         local tattooPrice = tattoo.price or 10000
         local price = math.ceil(tattooPrice / Config.Discount)
-        
+
         -- Check if tattoo is already selected or owned
         local isTattooSelected, status = isTattooSelectedOrOwned(tattoo)
         if isTattooSelected then
@@ -514,8 +521,8 @@ function TattooMenu()
     local list = {}
     list[#list + 1] = {
         isMenuHeader = true,
-        header =  " Tattoo Shop",
-        txt = locationName.."",
+        header = " Tattoo Shop",
+        txt = locationName .. "",
     }
     list[#list + 1] = {
         header = "< Close",
@@ -548,13 +555,13 @@ function TattooMenu()
     for i, zones in ipairs(Config.Zones) do
         zones.id = i
         list[#list + 1] = {
-            header = Config.Labels.Zones[zones.zone], 
+            header = Config.Labels.Zones[zones.zone],
             txt = "Collections for your " .. string.lower(Config.Labels.Zones[zones.zone]),
             params = {
                 isAction = true,
                 event = function()
-                    currentCamPos, currentHeading, currentOffset = SetupCamera(zones)  -- Setting up camera 
-                    OpenZone(zones) -- Open the selected zone
+                    currentCamPos, currentHeading, currentOffset = SetupCamera(zones) -- Setting up camera
+                    OpenZone(zones)                                                   -- Open the selected zone
                 end,
             },
         }
@@ -566,7 +573,7 @@ function TattooMenu()
     exports['qb-menu']:openMenu(list)
 end
 
--- Events 
+-- Events
 RegisterNetEvent("qb-tattoo:openMenu", function()
     TattooMenu()
 end)
@@ -687,7 +694,6 @@ CreateThread(function()
                     event = "qb-tattoo:openMenu",
                     icon = "fa-solid fa-paintbrush",
                     label = "Tattoo Shop",
-
                 },
             },
             distance = 6.0
