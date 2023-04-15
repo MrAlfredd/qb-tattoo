@@ -202,13 +202,20 @@ local function CloseMenu()
 end
 
 local function isTattooSelectedOrOwned(tattoo)
-    if lastSelectedTattoo.hash == tattoo.hashFemale or lastSelectedTattoo.hash == tattoo.hashMale then
-        return true, "Last selected"
-    elseif IsTattooOwned(tattoo.hashMale) or IsTattooOwned(tattoo.hashFemale) then
-        return true, "Already owned"
-    else
-        return false, ""
+    if GetEntityModel(PlayerPedId()) == `mp_m_freemode_01` then -- player is male
+        if lastSelectedTattoo.hash == tattoo.hashMale then
+            return true, "Last selected"
+        elseif IsTattooOwned(tattoo.hashMale) then
+            return true, "Already owned"
+        end
+    elseif GetEntityModel(PlayerPedId()) == `mp_f_freemode_01` then -- player is female
+        if lastSelectedTattoo.hash == tattoo.hashFemale then
+            return true, "Last selected"
+        elseif IsTattooOwned(tattoo.hashFemale) then
+            return true, "Already owned"
+        end
     end
+    return false, ""
 end
 
 local function ShowCurrentTattoos()
@@ -402,23 +409,27 @@ function OpenCollection(tattoos, zones, collection)
     }
     -- Loop through the tattoos in the collection
     for i, tattoo in ipairs(tattoos) do
+        -- Skip this tattoo if the hash is invalid for the player gender
+        local hash = GetEntityModel(PlayerPedId()) == `mp_f_freemode_01` and tattoo.hashFemale or tattoo.hashMale
+        if hash == '' then
+            goto continue
+        end
+    
         local header = tattoo.label
         local tattooHash
         local isDisabled = false
         local tattooPrice = tattoo.price or 10000
         local price = math.ceil(tattooPrice / Config.Discount)
-
+    
         -- Check if tattoo is already selected or owned
         local isTattooSelected, status = isTattooSelectedOrOwned(tattoo)
         if isTattooSelected then
             header = header .. " (" .. status .. ")"
             isDisabled = true
         else
-            local hash = GetEntityModel(PlayerPedId()) == `mp_f_freemode_01` and tattoo.hashFemale or tattoo.hashMale
-            if hash ~= '' then
-                tattooHash = hash
-            end
+            tattooHash = hash
         end
+    
         -- Add menu item
         collectionList[#collectionList + 1] = {
             header = header,
@@ -438,6 +449,8 @@ function OpenCollection(tattoos, zones, collection)
                 end,
             },
         }
+    
+        ::continue::
     end
     exports['qb-menu']:openMenu(collectionList)
 end
