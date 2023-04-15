@@ -63,6 +63,7 @@ local function SetTattoos()
 end
 
 local function BuyTattoo(collection, name, label, price)
+    lastSelectedTattoo = { hash = "", collection = "", price = 0, name = "" }
     QBCore.Functions.TriggerCallback('SmallTattoos:PurchaseTattoo', function(success)
         if success then
             currentTattoos[#currentTattoos + 1] = { collection = collection, nameHash = name, Count = opacity }
@@ -581,6 +582,7 @@ function TattooMenu()
     end
     SetupCamera()
     GetNaked()
+    
     isMenuOpen = true
     FreezeEntityPosition(PlayerPedId(), true)
     exports['qb-menu']:openMenu(list)
